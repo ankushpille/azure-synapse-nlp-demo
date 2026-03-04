@@ -74,3 +74,11 @@ azure-synapse-nlp-demo/
 - **Frontend**: React 19, Vite 6
 - **Backend**: Node.js, Express 4, mssql
 - **Database**: Azure Synapse Analytics (serverless SQL pool)
+
+
+the requirement is to build an end-to-end application using free Azure services, where:
+• Data/files are stored in Azure (similar to S3).
+• Azure Synapse is used for managing/querying structured data.
+• An NLP layer allows users to enter natural language queries.
+• A simple UI is built to input queries and display results.
+The complete flow should work from UI → NLP processing → Synapse query → result display.
