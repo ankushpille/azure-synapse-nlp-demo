@@ -1,0 +1,16 @@
+{
+  "name": "azure-synapse-nlp-server",
+  "version": "1.0.0",
+  "description": "Backend API for Azure Synapse NLP Demo – rule-based NLP to SQL query engine",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node --watch index.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "mssql": "^11.0.1"
+  }
+}
