@@ -30,23 +30,23 @@ function questionToSql(question) {
   const q = question.toLowerCase();
 
   if (q.includes("total") && q.includes("sales")) {
-    return "SELECT SUM(amount) AS total_sales FROM nlp_poc.dbo.sales_data;";
+    return "SELECT SUM(amount) AS total_sales FROM dbo.sales_data;";
   }
 
   if (q.includes("sales") && q.includes("region")) {
-    return "SELECT region, SUM(amount) AS total_sales FROM nlp_poc.dbo.sales_data GROUP BY region ORDER BY total_sales DESC;";
+    return "SELECT region, SUM(amount) AS total_sales FROM dbo.sales_data GROUP BY region ORDER BY total_sales DESC;";
   }
 
   if (q.includes("top") && (q.includes("product") || q.includes("sales"))) {
-    return "SELECT TOP 5 product_name, SUM(amount) AS total_sales FROM nlp_poc.dbo.sales_data GROUP BY product_name ORDER BY total_sales DESC;";
+    return "SELECT TOP 5 product_name, SUM(amount) AS total_sales FROM dbo.sales_data GROUP BY product_name ORDER BY total_sales DESC;";
   }
 
   if (q.includes("india")) {
-    return "SELECT * FROM nlp_poc.dbo.sales_data WHERE region='India';";
+    return "SELECT * FROM dbo.sales_data WHERE region='India';";
   }
 
   // default
-  return "SELECT TOP 10 * FROM nlp_poc.dbo.sales_data;";
+  return "SELECT TOP 10 * FROM dbo.sales_data;";
 }
 
 // ───────────────────────────────────────────────
@@ -56,7 +56,9 @@ app.post("/query", async (req, res) => {
   const { question } = req.body;
 
   if (!question || typeof question !== "string" || !question.trim()) {
-    return res.status(400).json({ error: "Please provide a valid 'question' field." });
+    return res
+      .status(400)
+      .json({ error: "Please provide a valid 'question' field." });
   }
 
   const generatedSql = questionToSql(question);
@@ -79,7 +81,11 @@ app.post("/query", async (req, res) => {
     });
   } finally {
     if (pool) {
-      try { await pool.close(); } catch (_) { /* ignore */ }
+      try {
+        await pool.close();
+      } catch (_) {
+        /* ignore */
+      }
     }
   }
 });
@@ -93,7 +99,6 @@ app.get("/health", (_req, res) => res.json({ status: "ok" }));
 // Root
 // ───────────────────────────────────────────────
 app.get("/", (_req, res) => res.json({ status: "Server is running" }));
-
 
 // ───────────────────────────────────────────────
 // Start server

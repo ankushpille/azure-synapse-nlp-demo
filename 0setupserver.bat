@@ -1,5 +1,7 @@
 @REM 0setupserver.bat
 
-call cd server
+cd /d "%~dp0server"
 REM fill in Synapse credentials
-call copy .env.example .env
+copy .env.example .env
+echo .env created — please edit it with your Synapse credentials.
+pause
