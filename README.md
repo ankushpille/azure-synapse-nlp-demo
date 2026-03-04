@@ -16,19 +16,22 @@ End-to-end full-stack application:
 
 ### 1. Backend
 
+#### ONE TIME
+
 ```bash
-cd server
-cp .env.example .env   # fill in Synapse credentials
-npm install
-npm run dev
+0setupserver.bat
+```
+
+#### EVERY TIME
+
+```bash
+1runserver.bat
 ```
 
 ### 2. Frontend
 
 ```bash
-cd client
-npm install
-npm run dev
+2runclient.bat
 ```
 
 Open **http://localhost:5173** in your browser.

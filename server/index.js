@@ -88,6 +88,12 @@ app.post("/query", async (req, res) => {
 app.get("/health", (_req, res) => res.json({ status: "ok" }));
 
 // ───────────────────────────────────────────────
+// Root
+// ───────────────────────────────────────────────
+app.get("/", (_req, res) => res.json({ status: "Server is running" }));
+
+
+// ───────────────────────────────────────────────
 // Start server
 // ───────────────────────────────────────────────
 const PORT = process.env.PORT || 3001;
