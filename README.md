@@ -1,3 +1,20 @@
+<!-- README.md -->
+
+# ---
+
+1
+
+The requirement is to build an end-to-end application using free Azure services, where:
+• Data/files are stored in Azure (similar to S3).
+• Azure Synapse is used for managing/querying structured data.
+• An NLP layer allows users to enter natural language queries.
+• A simple UI is built to input queries and display results.
+The complete flow should work from UI → NLP processing → Synapse query → result display.
+
+# ---
+
+2
+
 # Azure Synapse NLP Demo
 
 End-to-end full-stack application:  
@@ -61,13 +78,13 @@ azure-synapse-nlp-demo/
 
 ## NLP Rules
 
-| Question contains       | Generated SQL                                                         |
-|--------------------------|-----------------------------------------------------------------------|
-| "total" + "sales"        | `SELECT SUM(amount) AS total_sales FROM dbo.sales_data;`              |
-| "sales" + "region"       | `SELECT region, SUM(amount) … GROUP BY region ORDER BY …`             |
-| "top" + ("product"/"sales") | `SELECT TOP 5 product_name, SUM(amount) … GROUP BY … ORDER BY …`  |
-| "india"                  | `SELECT * FROM dbo.sales_data WHERE region='India';`                  |
-| *(default)*              | `SELECT TOP 10 * FROM dbo.sales_data;`                                |
+| Question contains           | Generated SQL                                                    |
+| --------------------------- | ---------------------------------------------------------------- |
+| "total" + "sales"           | `SELECT SUM(amount) AS total_sales FROM dbo.sales_data;`         |
+| "sales" + "region"          | `SELECT region, SUM(amount) … GROUP BY region ORDER BY …`        |
+| "top" + ("product"/"sales") | `SELECT TOP 5 product_name, SUM(amount) … GROUP BY … ORDER BY …` |
+| "india"                     | `SELECT * FROM dbo.sales_data WHERE region='India';`             |
+| _(default)_                 | `SELECT TOP 10 * FROM dbo.sales_data;`                           |
 
 ## Tech Stack
 
@@ -75,10 +92,57 @@ azure-synapse-nlp-demo/
 - **Backend**: Node.js, Express 4, mssql
 - **Database**: Azure Synapse Analytics (serverless SQL pool)
 
+# ---
 
-the requirement is to build an end-to-end application using free Azure services, where:
-• Data/files are stored in Azure (similar to S3).
-• Azure Synapse is used for managing/querying structured data.
-• An NLP layer allows users to enter natural language queries.
-• A simple UI is built to input queries and display results.
-The complete flow should work from UI → NLP processing → Synapse query → result display.
+TODO: below resources exist - Verify if below is correct explanation
+
+3
+
+Here’s a clear explanation of your Azure resources in table format:
+
+| Resource Name           | Resource Type     | What It Is                                | What It’s Used For                                                                                |
+| ----------------------- | ----------------- | ----------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| **nlpdatastorage123**   | Storage Account   | A general-purpose Azure storage container | Stores files, datasets, logs, blobs, or tables for your NLP project                               |
+| **nlp-synapse-ws123**   | Synapse Workspace | Azure analytics workspace                 | Used for big data processing, SQL queries, Spark jobs, data pipelines (likely for NLP processing) |
+| **nlp-project-rg**      | Resource Group    | Logical container for resources           | Organizes and manages all related Azure resources together                                        |
+| **nlpprojstorage12345** | Storage Account   | Another storage account                   | Likely used separately for Synapse workspace storage, staging, or data lake                       |
+
+---
+
+# 🔎 What This Means Practically
+
+- 🗂 **Resource Group (nlp-project-rg)**
+  Think of this as a folder that contains everything for your NLP project.
+
+- 💾 **Storage Accounts (2 of them)**
+  These hold:
+  - Raw datasets
+  - Processed outputs
+  - Logs
+  - Possibly Synapse data lake storage
+
+- 📊 **Synapse Workspace**
+  This is the analytics engine where you:
+  - Run SQL queries
+  - Use Spark for NLP processing
+  - Build pipelines
+  - Process large datasets
+
+---
+
+# ⚠️ Important (Cost Warning)
+
+The **Synapse workspace** can generate costs even in free accounts if:
+
+- SQL pools are running
+- Spark pools are active
+
+If this is just testing, I can help you:
+
+- Check if it’s incurring charges
+- Shut down anything running
+- Optimize for free usage
+
+Do you want me to check which of these might cost money?
+
+# ---

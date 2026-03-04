@@ -1,3 +1,5 @@
+/* client\src\index.css */
+
 /* ── Reset & Base ─────────────────────────────── */
 *,
 *::before,
@@ -27,7 +29,8 @@
   --gradient-end: #a855f7;
   --radius: 12px;
   --radius-sm: 8px;
-  --font: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font:
+    "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
 html {
@@ -68,7 +71,11 @@ body {
   content: "";
   position: absolute;
   inset: 0;
-  background: radial-gradient(ellipse 60% 50% at 50% 0%, var(--accent-glow) 0%, transparent 70%);
+  background: radial-gradient(
+    ellipse 60% 50% at 50% 0%,
+    var(--accent-glow) 0%,
+    transparent 70%
+  );
   pointer-events: none;
 }
 
@@ -76,7 +83,11 @@ body {
   position: relative;
   font-weight: 800;
   font-size: 2rem;
-  background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+  background: linear-gradient(
+    135deg,
+    var(--gradient-start),
+    var(--gradient-end)
+  );
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -121,8 +132,13 @@ body {
 }
 
 @keyframes pulse-dot {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.4; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
 }
 
 .main-content {
@@ -168,7 +184,9 @@ body {
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   outline: none;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
 }
 
 .input-row input::placeholder {
@@ -189,11 +207,17 @@ body {
   font-weight: 600;
   font-family: var(--font);
   color: #fff;
-  background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+  background: linear-gradient(
+    135deg,
+    var(--gradient-start),
+    var(--gradient-end)
+  );
   border: none;
   border-radius: var(--radius-sm);
   cursor: pointer;
-  transition: opacity 0.2s, transform 0.1s;
+  transition:
+    opacity 0.2s,
+    transform 0.1s;
   white-space: nowrap;
 }
 
@@ -221,7 +245,9 @@ body {
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* ── Suggestions ──────────────────────────────── */
@@ -241,7 +267,9 @@ body {
   border: 1px solid rgba(99, 102, 241, 0.2);
   border-radius: 999px;
   cursor: pointer;
-  transition: background 0.2s, border-color 0.2s;
+  transition:
+    background 0.2s,
+    border-color 0.2s;
 }
 
 .suggestions button:hover {

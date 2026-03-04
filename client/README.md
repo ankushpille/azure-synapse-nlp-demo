@@ -1,3 +1,5 @@
+<!-- client\README.md -->
+
 # Azure Synapse NLP Demo – Client
 
 React frontend that lets you type natural-language questions and see SQL-powered results from Azure Synapse.

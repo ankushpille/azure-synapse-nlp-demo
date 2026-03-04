@@ -1,3 +1,5 @@
+<!-- server\README.md -->
+
 # Azure Synapse NLP Demo – Server
 
 Backend API that converts natural-language questions into SQL queries and executes them against Azure Synapse Analytics (serverless SQL pool).
@@ -28,9 +30,9 @@ The server listens on **http://localhost:3001** by default.
 
 ### `POST /query`
 
-| Field      | Type   | Description                  |
-|------------|--------|------------------------------|
-| `question` | string | Natural-language question    |
+| Field      | Type   | Description               |
+| ---------- | ------ | ------------------------- |
+| `question` | string | Natural-language question |
 
 **Request**
 
@@ -52,13 +54,13 @@ curl -X POST http://localhost:3001/query \
 
 ### Example questions
 
-| Question                        | Generated SQL |
-|---------------------------------|---------------|
-| What are the total sales?       | `SELECT SUM(amount) AS total_sales FROM dbo.sales_data;` |
-| Show sales by region            | `SELECT region, SUM(amount) AS total_sales FROM dbo.sales_data GROUP BY region ORDER BY total_sales DESC;` |
-| Top products by sales           | `SELECT TOP 5 product_name, SUM(amount) AS total_sales FROM dbo.sales_data GROUP BY product_name ORDER BY total_sales DESC;` |
-| Sales in India                  | `SELECT * FROM dbo.sales_data WHERE region='India';` |
-| *(any other question)*          | `SELECT TOP 10 * FROM dbo.sales_data;` |
+| Question                  | Generated SQL                                                                                                                |
+| ------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| What are the total sales? | `SELECT SUM(amount) AS total_sales FROM dbo.sales_data;`                                                                     |
+| Show sales by region      | `SELECT region, SUM(amount) AS total_sales FROM dbo.sales_data GROUP BY region ORDER BY total_sales DESC;`                   |
+| Top products by sales     | `SELECT TOP 5 product_name, SUM(amount) AS total_sales FROM dbo.sales_data GROUP BY product_name ORDER BY total_sales DESC;` |
+| Sales in India            | `SELECT * FROM dbo.sales_data WHERE region='India';`                                                                         |
+| _(any other question)_    | `SELECT TOP 10 * FROM dbo.sales_data;`                                                                                       |
 
 ### `GET /health`
 
