@@ -1,9 +1,5 @@
 <!-- README.md -->
 
-# ---
-
-1
-
 The requirement is to build an end-to-end application using free Azure services, where:
 • Data/files are stored in Azure (similar to S3).
 • Azure Synapse is used for managing/querying structured data.
@@ -12,8 +8,6 @@ The requirement is to build an end-to-end application using free Azure services,
 The complete flow should work from UI → NLP processing → Synapse query → result display.
 
 # ---
-
-2
 
 # Azure Synapse NLP Demo
 
