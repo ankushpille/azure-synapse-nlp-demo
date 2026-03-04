@@ -88,11 +88,7 @@ azure-synapse-nlp-demo/
 
 # ---
 
-TODO: below resources exist - Verify if below is correct explanation
-
-3
-
-Here’s a clear explanation of your Azure resources in table format:
+Azure resources in table format:
 
 | Resource Name           | Resource Type     | What It Is                                | What It’s Used For                                                                                |
 | ----------------------- | ----------------- | ----------------------------------------- | ------------------------------------------------------------------------------------------------- |
@@ -101,12 +97,8 @@ Here’s a clear explanation of your Azure resources in table format:
 | **nlp-project-rg**      | Resource Group    | Logical container for resources           | Organizes and manages all related Azure resources together                                        |
 | **nlpprojstorage12345** | Storage Account   | Another storage account                   | Likely used separately for Synapse workspace storage, staging, or data lake                       |
 
----
-
-# 🔎 What This Means Practically
-
 - 🗂 **Resource Group (nlp-project-rg)**
-  Think of this as a folder that contains everything for your NLP project.
+  A folder that contains everything for your NLP project.
 
 - 💾 **Storage Accounts (2 of them)**
   These hold:
@@ -130,13 +122,5 @@ The **Synapse workspace** can generate costs even in free accounts if:
 
 - SQL pools are running
 - Spark pools are active
-
-If this is just testing, I can help you:
-
-- Check if it’s incurring charges
-- Shut down anything running
-- Optimize for free usage
-
-Do you want me to check which of these might cost money?
 
 # ---
