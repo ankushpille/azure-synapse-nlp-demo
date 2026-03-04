@@ -28,23 +28,23 @@ function questionToSql(question) {
   const q = question.toLowerCase();
 
   if (q.includes("total") && q.includes("sales")) {
-    return "SELECT SUM(amount) AS total_sales FROM dbo.sales_data;";
+    return "SELECT SUM(amount) AS total_sales FROM nlp_poc.dbo.sales_data;";
   }
 
   if (q.includes("sales") && q.includes("region")) {
-    return "SELECT region, SUM(amount) AS total_sales FROM dbo.sales_data GROUP BY region ORDER BY total_sales DESC;";
+    return "SELECT region, SUM(amount) AS total_sales FROM nlp_poc.dbo.sales_data GROUP BY region ORDER BY total_sales DESC;";
   }
 
   if (q.includes("top") && (q.includes("product") || q.includes("sales"))) {
-    return "SELECT TOP 5 product_name, SUM(amount) AS total_sales FROM dbo.sales_data GROUP BY product_name ORDER BY total_sales DESC;";
+    return "SELECT TOP 5 product_name, SUM(amount) AS total_sales FROM nlp_poc.dbo.sales_data GROUP BY product_name ORDER BY total_sales DESC;";
   }
 
   if (q.includes("india")) {
-    return "SELECT * FROM dbo.sales_data WHERE region='India';";
+    return "SELECT * FROM nlp_poc.dbo.sales_data WHERE region='India';";
   }
 
   // default
-  return "SELECT TOP 10 * FROM dbo.sales_data;";
+  return "SELECT TOP 10 * FROM nlp_poc.dbo.sales_data;";
 }
 
 // ───────────────────────────────────────────────
