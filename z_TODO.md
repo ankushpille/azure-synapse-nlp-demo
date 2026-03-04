@@ -26,41 +26,13 @@ echo .env created — please edit it with your Synapse credentials.
 pause
 ```
 
-### `1runserver.bat`
 
-```bat
-@REM 1runserver.bat
-cd /d "%~dp0server"
-call npm install
-call npm run dev
-```
 
-### `2runclient.bat`
-
-```bat
-@REM 2runclient.bat
-cd /d "%~dp0client"
-call npm install
-call npm run dev
-```
-
-### `.gitignore` (root)
-
-```gitignore
-node_modules/
-dist/
-.env
-*.log
-.DS_Store
-Thumbs.db
-```
 
 ### `server/.gitignore`
 
 ```gitignore
-node_modules/
-.env
-*.log
+
 ```
 
 ### `server/.env.example`
@@ -76,22 +48,7 @@ SYNAPSE_PASSWORD=
 ### `server/package.json`
 
 ```json
-{
-  "name": "azure-synapse-nlp-server",
-  "description": "Backend API for Azure Synapse NLP Demo – rule-based NLP to SQL query engine",
-  "version": "1.0.0",
-  "main": "index.js",
-  "scripts": {
-    "start": "node index.js",
-    "dev": "node --watch index.js"
-  },
-  "dependencies": {
-    "cors": "^2.8.5",
-    "dotenv": "^16.4.7",
-    "express": "^4.21.2",
-    "mssql": "^11.0.1"
-  }
-}
+
 ```
 
 ### `server/index.js`

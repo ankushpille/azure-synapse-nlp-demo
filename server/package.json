@@ -1,6 +1,6 @@
 {
   "name": "azure-synapse-nlp-server",
-  "description": "server/package.json - Backend API for Azure Synapse NLP Demo – rule-based NLP to SQL query engine",
+  "description": "Backend API for Azure Synapse NLP Demo – rule-based NLP to SQL query engine",
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {

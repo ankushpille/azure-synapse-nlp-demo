@@ -1,5 +1,5 @@
 @REM 1runserver.bat
 
-call cd server
+cd /d "%~dp0server"
 call npm install
 call npm run dev
