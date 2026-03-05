@@ -1,136 +1,44 @@
-// server\index.js
+/**
+ * Azure Synapse NLP Demo Backend
+ * Main server entry point
+ *
+ * Architecture overview:
+ * - Routes: Define API endpoints
+ * - Controllers: Handle request validation and orchestration
+ * - Services: Business logic (NLP, Synapse interaction)
+ * - Utils: Reusable utilities (logging, SQL generation)
+ * - Middleware: Error handling, authentication, etc.
+ * - Config: Configuration management
+ */
 
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
-const sql = require("mssql");
-const { ClientSecretCredential } = require("@azure/identity");
 
+const logger = require("./utils/logger");
+const queryRoutes = require("./routes/queryRoutes");
+const { errorHandler, notFoundHandler } = require("./middleware/errorHandler");
+
+// Initialize Express app
 const app = express();
+
+// Middleware
 app.use(cors());
 app.use(express.json());
 
-// ───────────────────────────────────────────────
-// Azure AD Credential (App Registration)
-// ───────────────────────────────────────────────
-const credential = new ClientSecretCredential(
-  process.env.AZURE_TENANT_ID,
-  process.env.AZURE_CLIENT_ID,
-  process.env.AZURE_CLIENT_SECRET
-);
+// Routes
+app.use("/query", queryRoutes); // POST /query
+app.use("/health", queryRoutes); // GET /health
+app.use("/", queryRoutes); // GET /
 
-// ───────────────────────────────────────────────
-// Helper: get a Synapse connection pool via AAD
-// ───────────────────────────────────────────────
-async function getSynapsePool() {
-  // Acquire an Azure AD token scoped for Azure SQL / Synapse
-  const tokenResponse = await credential.getToken(
-    "https://database.windows.net/.default"
-  );
+// Error handling middleware (must be registered after routes)
+app.use(notFoundHandler);
+app.use(errorHandler);
 
-  const config = {
-    server: process.env.SYNAPSE_SERVER,
-    database: process.env.SYNAPSE_DATABASE,
-    authentication: {
-      type: "azure-active-directory-access-token",
-      options: {
-        token: tokenResponse.token,
-      },
-    },
-    options: {
-      encrypt: true,
-      trustServerCertificate: false,
-    },
-  };
-
-  return sql.connect(config);
-}
-
-// ───────────────────────────────────────────────
-// Rule-based NLP → SQL mapping
-// ───────────────────────────────────────────────
-function questionToSql(question) {
-  const q = question.toLowerCase();
-
-  if (q.includes("total") && q.includes("sales")) {
-    return "SELECT SUM(amount) AS total_sales FROM dbo.sales_ext;";
-  }
-
-  if (q.includes("sales") && q.includes("region")) {
-    return "SELECT region, SUM(amount) AS total_sales FROM dbo.sales_ext GROUP BY region ORDER BY total_sales DESC;";
-  }
-
-  if (q.includes("top") && (q.includes("product") || q.includes("sales"))) {
-    return "SELECT TOP 5 product_name, SUM(amount) AS total_sales FROM dbo.sales_ext GROUP BY product_name ORDER BY total_sales DESC;";
-  }
-
-  if (q.includes("india")) {
-    return "SELECT * FROM dbo.sales_ext WHERE region='India';";
-  }
-
-  // default
-  return "SELECT TOP 10 * FROM dbo.sales_ext;";
-}
-
-// ───────────────────────────────────────────────
-// POST /query
-// ───────────────────────────────────────────────
-app.post("/query", async (req, res) => {
-  const { question } = req.body;
-
-  if (!question || typeof question !== "string" || !question.trim()) {
-    return res
-      .status(400)
-      .json({ error: "Please provide a valid 'question' field." });
-  }
-
-  const generatedSql = questionToSql(question);
-
-  // Debug logging
-  console.log("Question:", question);
-  console.log("Generated SQL:", generatedSql);
-
-  let pool;
-  try {
-    pool = await getSynapsePool();
-    const result = await pool.request().query(generatedSql);
-
-    res.json({
-      question,
-      generatedSql,
-      rows: result.recordset,
-    });
-  } catch (err) {
-    console.error("Synapse query error:", err.message);
-    res.status(500).json({
-      error: "Failed to execute query against Azure Synapse.",
-      details: err.message,
-    });
-  } finally {
-    if (pool) {
-      try {
-        await pool.close();
-      } catch (_) {
-        /* ignore */
-      }
-    }
-  }
-});
-
-// ───────────────────────────────────────────────
-// Health check
-// ───────────────────────────────────────────────
-app.get("/health", (_req, res) => res.json({ status: "ok" }));
-
-// ───────────────────────────────────────────────
-// Root
-// ───────────────────────────────────────────────
-app.get("/", (_req, res) => res.json({ status: "Server is running" }));
-
-// ───────────────────────────────────────────────
-// Start server
-// ───────────────────────────────────────────────
+// Server configuration
 const PORT = process.env.PORT || 3001;
+
+// Start server
 app.listen(PORT, () => {
-  console.log(`✅  Server is running on http://localhost:${PORT}`);
+  logger.info(`✅ Server is running on http://localhost:${PORT}`);
 });
