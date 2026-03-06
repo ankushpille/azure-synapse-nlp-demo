@@ -8,10 +8,13 @@
     "dev": "node --watch index.js"
   },
   "dependencies": {
+    "@azure/data-tables": "13.3.2",
     "@azure/identity": "^4.13.0",
+    "applicationinsights": "3.14.0",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
-    "mssql": "^11.0.1"
+    "mssql": "^11.0.1",
+    "uuid": "^13.0.0"
   }
 }

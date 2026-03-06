@@ -1,21 +1,23 @@
 /**
  * Feedback Controller
- * Handles feedback request validation, orchestrates service calls, and returns responses
+ * Handles feedback request validation and orchestrates service calls
  */
 
 const feedbackService = require("../services/feedbackService");
 const logger = require("../utils/logger");
+const { telemetryClient } = require("../config/appInsights");
 
 /**
- * Handles feedback submission
+ * Handle feedback request
  * @param {Object} req - Express request object
  * @param {Object} res - Express response object
  */
-async function handleFeedback(req, res) {
+async function handleFeedbackRequest(req, res) {
   try {
     // Validate request body
     const { question, generatedSql, feedback, comment } = req.body;
 
+    // Validate required fields
     if (!question || typeof question !== "string" || !question.trim()) {
       return res.status(400).json({
         error: 'Please provide a valid "question" field.',
@@ -41,6 +43,7 @@ async function handleFeedback(req, res) {
       });
     }
 
+    // Validate optional comment
     if (comment && typeof comment !== "string") {
       return res.status(400).json({
         error: 'Please provide a valid "comment" field.',
@@ -48,35 +51,53 @@ async function handleFeedback(req, res) {
       });
     }
 
-    // Save feedback
-    const feedbackData = {
-      question: question.trim(),
-      generatedSql: generatedSql.trim(),
+    logger.debug("Processing feedback request", {
+      question: question.substring(0, 100),
       feedback,
-      comment: comment ? comment.trim() : null,
-    };
+    });
 
-    const savedFeedback = feedbackService.saveFeedback(feedbackData);
-    logger.logFeedback(
-      feedbackData.question,
-      feedbackData.feedback,
-      feedbackData.comment,
-    );
+    // Save feedback
+    const feedbackEntry = await feedbackService.saveFeedback({
+      question,
+      generatedSql,
+      feedback,
+      comment: comment?.trim() || null,
+    });
+
+    // Send telemetry to Application Insights
+    telemetryClient?.trackEvent({
+      name: "FeedbackSubmitted",
+      properties: {
+        question: question.substring(0, 100),
+        feedback,
+        hasComment: !!comment,
+      },
+    });
+
+    logger.debug("Feedback saved successfully");
 
     res.json({
       success: true,
-      message: "Feedback submitted successfully",
-      feedback: savedFeedback,
+      message: "Feedback received successfully",
     });
   } catch (error) {
-    logger.error("Failed to submit feedback", error);
-    return res.status(500).json({
-      error: "Failed to submit feedback",
+    logger.error("Failed to process feedback", error);
+
+    telemetryClient?.trackException({
+      exception: error,
+      properties: {
+        question: req.body.question?.substring(0, 100),
+        feedback: req.body.feedback,
+      },
+    });
+
+    res.status(500).json({
+      error: "Failed to process feedback",
       details: error.message,
     });
   }
 }
 
 module.exports = {
-  handleFeedback,
+  handleFeedbackRequest,
 };

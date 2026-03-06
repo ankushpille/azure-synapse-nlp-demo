@@ -15,6 +15,9 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 
+// Initialize Application Insights first
+require("./config/appInsights");
+
 const logger = require("./utils/logger");
 const queryRoutes = require("./routes/queryRoutes");
 const feedbackRoutes = require("./routes/feedbackRoutes");

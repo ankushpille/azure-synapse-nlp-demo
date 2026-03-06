@@ -1,29 +1,36 @@
 /**
- * Query routes configuration
- * Defines the API endpoints for query functionality
+ * Query API Routes
+ * Handles query-related endpoints
  */
 
 const express = require("express");
 const queryController = require("../controllers/queryController");
+const logger = require("../utils/logger");
 
 const router = express.Router();
 
 /**
- * Query endpoint - POST /query
- * Handles natural language queries and returns SQL results
- */
-router.post("/", queryController.handleQueryRequest);
-
-/**
- * Health check endpoint - GET /health
- * Returns server status
+ * @route GET /health
+ * @description Health check endpoint
+ * @access Public
  */
 router.get("/health", queryController.handleHealthCheck);
 
 /**
- * Root endpoint - GET /
- * Returns server status
+ * @route GET /
+ * @description Root endpoint
+ * @access Public
  */
 router.get("/", queryController.handleRootRequest);
+
+/**
+ * @route POST /
+ * @description Process natural language query and return results
+ * @access Public
+ */
+router.post("/", async (req, res) => {
+  logger.debug("Query route handler");
+  await queryController.handleQueryRequest(req, res);
+});
 
 module.exports = router;

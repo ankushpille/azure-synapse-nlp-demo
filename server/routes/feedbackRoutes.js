@@ -1,17 +1,22 @@
 /**
- * Feedback routes configuration
- * Defines the API endpoints for feedback functionality
+ * Feedback API Routes
+ * Handles feedback-related endpoints
  */
 
 const express = require("express");
 const feedbackController = require("../controllers/feedbackController");
+const logger = require("../utils/logger");
 
 const router = express.Router();
 
 /**
- * Feedback endpoint - POST /feedback
- * Handles feedback submission for queries
+ * @route POST /
+ * @description Submit feedback for a query
+ * @access Public
  */
-router.post("/", feedbackController.handleFeedback);
+router.post("/", async (req, res) => {
+  logger.debug("Feedback route handler");
+  await feedbackController.handleFeedbackRequest(req, res);
+});
 
 module.exports = router;

@@ -1,26 +1,89 @@
 /**
  * Analytics Controller
- * Handles analytics and query history request validation,
- * orchestrates service calls, and returns responses
+ * Handles analytics and query history request validation and orchestration
  */
 
-const analyticsService = require("../services/analyticsService");
 const queryLogService = require("../services/queryLogService");
+const analyticsService = require("../services/analyticsService");
 const logger = require("../utils/logger");
+const { telemetryClient } = require("../config/appInsights");
 
 /**
- * Gets analytics summary
+ * Handle query history request
  * @param {Object} req - Express request object
  * @param {Object} res - Express response object
  */
-async function getAnalytics(req, res) {
+async function handleQueryHistoryRequest(req, res) {
   try {
-    logger.logAnalyticsRequest();
-    const analytics = analyticsService.getAnalytics();
+    // Get limit from query parameters (default: 10)
+    const limit = parseInt(req.query.limit) || 10;
+
+    // Validate limit parameter
+    if (limit < 1 || limit > 100) {
+      return res.status(400).json({
+        error: 'Please provide a valid "limit" parameter.',
+        details: "Limit must be between 1 and 100",
+      });
+    }
+
+    logger.debug("Retrieving query history", { limit });
+
+    // Get query history from service
+    const queryHistory = await queryLogService.getQueryHistory(limit);
+
+    telemetryClient?.trackEvent({
+      name: "QueryHistoryRetrieved",
+      properties: {
+        limit,
+        count: queryHistory.length,
+      },
+    });
+
+    res.json(queryHistory);
+  } catch (error) {
+    logger.error("Failed to retrieve query history", error);
+
+    telemetryClient?.trackException({
+      exception: error,
+    });
+
+    res.status(500).json({
+      error: "Failed to retrieve query history",
+      details: error.message,
+    });
+  }
+}
+
+/**
+ * Handle analytics summary request
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
+async function handleAnalyticsRequest(req, res) {
+  try {
+    logger.debug("Retrieving analytics summary");
+
+    // Get analytics from service
+    const analytics = await analyticsService.getAnalyticsSummary();
+
+    telemetryClient?.trackEvent({
+      name: "AnalyticsRetrieved",
+      properties: {
+        totalQueries: analytics.totalQueries,
+        successfulQueries: analytics.successfulQueries,
+        failedQueries: analytics.failedQueries,
+      },
+    });
+
     res.json(analytics);
   } catch (error) {
     logger.error("Failed to retrieve analytics", error);
-    return res.status(500).json({
+
+    telemetryClient?.trackException({
+      exception: error,
+    });
+
+    res.status(500).json({
       error: "Failed to retrieve analytics",
       details: error.message,
     });
@@ -28,34 +91,53 @@ async function getAnalytics(req, res) {
 }
 
 /**
- * Gets query history
+ * Handle analytics by period request
  * @param {Object} req - Express request object
  * @param {Object} res - Express response object
  */
-async function getQueryHistory(req, res) {
+async function handleAnalyticsByPeriodRequest(req, res) {
   try {
-    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const period = req.query.period || "week";
 
-    if (isNaN(limit) || limit <= 0) {
+    // Validate period parameter
+    const validPeriods = ["day", "week", "month"];
+    if (!validPeriods.includes(period)) {
       return res.status(400).json({
-        error: 'Please provide a valid "limit" parameter.',
-        details: "Limit must be a positive integer",
+        error: 'Please provide a valid "period" parameter.',
+        details: `Period must be one of: ${validPeriods.join(", ")}`,
       });
     }
 
-    logger.logQueryHistoryRequest(limit);
-    const history = queryLogService.getQueryHistory(limit);
-    res.json(history);
+    logger.debug("Retrieving analytics by period", { period });
+
+    // Get analytics from service
+    const analytics = await analyticsService.getAnalyticsByPeriod(period);
+
+    telemetryClient?.trackEvent({
+      name: "AnalyticsByPeriodRetrieved",
+      properties: {
+        period,
+        totalQueries: analytics.totalQueries,
+      },
+    });
+
+    res.json(analytics);
   } catch (error) {
-    logger.error("Failed to retrieve query history", error);
-    return res.status(500).json({
-      error: "Failed to retrieve query history",
+    logger.error("Failed to retrieve period analytics", error);
+
+    telemetryClient?.trackException({
+      exception: error,
+    });
+
+    res.status(500).json({
+      error: "Failed to retrieve period analytics",
       details: error.message,
     });
   }
 }
 
 module.exports = {
-  getAnalytics,
-  getQueryHistory,
+  handleQueryHistoryRequest,
+  handleAnalyticsRequest,
+  handleAnalyticsByPeriodRequest,
 };

@@ -7,6 +7,7 @@ const nlpService = require("../services/nlpService");
 const synapseService = require("../services/synapseService");
 const queryLogService = require("../services/queryLogService");
 const logger = require("../utils/logger");
+const { telemetryClient } = require("../config/appInsights");
 
 /**
  * Handle NLP query request
@@ -40,12 +41,24 @@ async function handleQueryRequest(req, res) {
     const responseTimeMs = Date.now() - startTime;
 
     // Log successful query
-    queryLogService.createQueryLog({
+    await queryLogService.createQueryLog({
       question,
       generatedSql,
       status: "success",
       responseTimeMs,
       rowCount: results.length,
+    });
+
+    // Send telemetry to Application Insights
+    telemetryClient?.trackEvent({
+      name: "QueryExecuted",
+      properties: {
+        question: question.substring(0, 100),
+        status: "success",
+        rowCount: results.length,
+        responseTimeMs,
+        generatedSql,
+      },
     });
 
     // Return successful response
@@ -63,7 +76,7 @@ async function handleQueryRequest(req, res) {
     // Log failed query
     if (req.body.question) {
       try {
-        queryLogService.createQueryLog({
+        await queryLogService.createQueryLog({
           question: req.body.question,
           generatedSql: null,
           status: "failure",
@@ -77,6 +90,25 @@ async function handleQueryRequest(req, res) {
     }
 
     logger.logApiError(req.body.question, error);
+
+    // Send telemetry to Application Insights
+    telemetryClient?.trackException({
+      exception: error,
+      properties: {
+        question: req.body.question?.substring(0, 100),
+        status: "failure",
+      },
+    });
+
+    telemetryClient?.trackEvent({
+      name: "QueryExecuted",
+      properties: {
+        question: req.body.question?.substring(0, 100),
+        status: "failure",
+        responseTimeMs,
+        errorMessage: error.message,
+      },
+    });
 
     return res.status(500).json({
       error: "Failed to process query",
