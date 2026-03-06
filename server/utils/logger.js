@@ -10,6 +10,7 @@ const LOG_LEVELS = {
   INFO: "INFO",
   ERROR: "ERROR",
   DEBUG: "DEBUG",
+  WARN: "WARN",
 };
 
 /**
@@ -55,6 +56,13 @@ function debug(message, data = null) {
 }
 
 /**
+ * Warn level log
+ */
+function warn(message, data = null) {
+  log(LOG_LEVELS.WARN, message, data);
+}
+
+/**
  * Log incoming request details
  */
 function logRequest(question) {
@@ -85,12 +93,53 @@ function logError(context, error) {
   });
 }
 
+/**
+ * Log API error response
+ */
+function logApiError(question, error) {
+  error("API error response", {
+    question,
+    error: error.message,
+    stack: error.stack,
+  });
+}
+
+/**
+ * Log feedback submission
+ */
+function logFeedback(question, feedbackType, comment) {
+  info("Feedback received", {
+    question,
+    feedback: feedbackType,
+    comment: comment || "No comment",
+  });
+}
+
+/**
+ * Log query history request
+ */
+function logQueryHistoryRequest(limit) {
+  info("Query history requested", { limit });
+}
+
+/**
+ * Log analytics request
+ */
+function logAnalyticsRequest() {
+  info("Analytics requested");
+}
+
 module.exports = {
   info,
   error,
   debug,
+  warn,
   logRequest,
   logGeneratedSql,
   logQueryResult,
   logError,
+  logApiError,
+  logFeedback,
+  logQueryHistoryRequest,
+  logAnalyticsRequest,
 };

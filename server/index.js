@@ -5,8 +5,8 @@
  * Architecture overview:
  * - Routes: Define API endpoints
  * - Controllers: Handle request validation and orchestration
- * - Services: Business logic (NLP, Synapse interaction)
- * - Utils: Reusable utilities (logging, SQL generation)
+ * - Services: Business logic (NLP, Synapse interaction, data access)
+ * - Utils: Reusable utilities (logging, SQL generation, file storage)
  * - Middleware: Error handling, authentication, etc.
  * - Config: Configuration management
  */
@@ -17,6 +17,8 @@ const cors = require("cors");
 
 const logger = require("./utils/logger");
 const queryRoutes = require("./routes/queryRoutes");
+const feedbackRoutes = require("./routes/feedbackRoutes");
+const analyticsRoutes = require("./routes/analyticsRoutes");
 const { errorHandler, notFoundHandler } = require("./middleware/errorHandler");
 
 // Initialize Express app
@@ -28,6 +30,8 @@ app.use(express.json());
 
 // Routes
 app.use("/query", queryRoutes); // POST /query
+app.use("/feedback", feedbackRoutes); // POST /feedback
+app.use("/analytics", analyticsRoutes); // GET /analytics, GET /analytics/query-history
 app.use("/health", queryRoutes); // GET /health
 app.use("/", queryRoutes); // GET /
 
