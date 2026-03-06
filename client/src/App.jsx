@@ -1,16 +1,14 @@
 // client\src\App.jsx
 
 import { useState, useEffect } from "react";
+import QueryInput from "./components/QueryInput/QueryInput";
+import ResultsTable from "./components/ResultsTable/ResultsTable";
+import Feedback from "./components/Feedback/Feedback";
+import QueryHistory from "./components/QueryHistory/QueryHistory";
+import "./styles/global.css";
+import "./styles/layout.css";
 
 const API_URL = "http://localhost:3001";
-
-const SUGGESTIONS = [
-  "What are the total sales?",
-  "Show sales by region",
-  "Top products by sales",
-  "Sales in India",
-  "Show me all data",
-];
 
 export default function App() {
   const [question, setQuestion] = useState("");
@@ -131,8 +129,6 @@ export default function App() {
     }
   };
 
-  const columns = result?.rows?.length ? Object.keys(result.rows[0]) : [];
-
   return (
     <div className="app-wrapper">
       {/* ── Header ────────────────────────────── */}
@@ -154,220 +150,73 @@ export default function App() {
 
       {/* ── Main ──────────────────────────────── */}
       <main className="main-content">
-        {/* Analytics Summary */}
-        {analytics && (
-          <div className="analytics-section">
-            <div className="section-title">📈 Analytics Summary</div>
-            <div className="analytics-grid">
-              <div className="stat-card">
-                <div className="stat-value">{analytics.totalQueries}</div>
-                <div className="stat-label">Total Queries</div>
-              </div>
-              <div className="stat-card">
-                <div className="stat-value">{analytics.successfulQueries}</div>
-                <div className="stat-label">Successful Queries</div>
-              </div>
-              <div className="stat-card">
-                <div className="stat-value">{analytics.failedQueries}</div>
-                <div className="stat-label">Failed Queries</div>
-              </div>
-              <div className="stat-card">
-                <div className="stat-value">
-                  {analytics.averageResponseTimeMs}ms
+        <div className="container">
+          {/* Analytics Summary */}
+          {analytics && (
+            <div className="card analytics-section">
+              <div className="section-title">📈 Analytics Summary</div>
+              <div className="analytics-grid">
+                <div className="stat-card">
+                  <div className="stat-value">{analytics.totalQueries}</div>
+                  <div className="stat-label">Total Queries</div>
                 </div>
-                <div className="stat-label">Avg Response Time</div>
-              </div>
-              <div className="stat-card">
-                <div className="stat-value">
-                  {analytics.helpfulFeedbackCount}
-                </div>
-                <div className="stat-label">Helpful Feedback</div>
-              </div>
-              <div className="stat-card">
-                <div className="stat-value">
-                  {analytics.notHelpfulFeedbackCount}
-                </div>
-                <div className="stat-label">Not Helpful Feedback</div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Query Card */}
-        <div className="query-card">
-          <label htmlFor="nlp-input">Ask your question</label>
-          <div className="input-row">
-            <input
-              id="nlp-input"
-              type="text"
-              placeholder='e.g. "What are the total sales?"'
-              value={question}
-              onChange={(e) => setQuestion(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
-              disabled={loading}
-            />
-            <button
-              className="btn-submit"
-              onClick={() => handleSubmit()}
-              disabled={loading || !question.trim()}
-            >
-              {loading ? (
-                <>
-                  <span className="spinner" /> Querying…
-                </>
-              ) : (
-                "Run Query ▸"
-              )}
-            </button>
-          </div>
-          <div className="suggestions">
-            {SUGGESTIONS.map((s) => (
-              <button
-                key={s}
-                onClick={() => onSuggestion(s)}
-                disabled={loading}
-              >
-                {s}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Error */}
-        {error && (
-          <div className="error-box">
-            <strong>Error: </strong>
-            {error}
-          </div>
-        )}
-
-        {/* Generated SQL */}
-        {result?.generatedSql && (
-          <div className="sql-section">
-            <div className="section-title">⚡ Generated SQL</div>
-            <div className="sql-block">
-              <code>{result.generatedSql}</code>
-            </div>
-          </div>
-        )}
-
-        {/* Results Table */}
-        {result?.rows && (
-          <div className="results-section">
-            <div className="results-header">
-              <div className="section-title">📊 Query Results</div>
-              <span className="row-count">
-                {result.rows.length} row{result.rows.length !== 1 ? "s" : ""}
-              </span>
-            </div>
-
-            {result.rows.length === 0 ? (
-              <div className="no-rows">No rows returned.</div>
-            ) : (
-              <div className="table-wrapper">
-                <table>
-                  <thead>
-                    <tr>
-                      {columns.map((col) => (
-                        <th key={col}>{col}</th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {result.rows.map((row, i) => (
-                      <tr key={i}>
-                        {columns.map((col) => (
-                          <td key={col}>
-                            {row[col] !== null && row[col] !== undefined
-                              ? String(row[col])
-                              : "—"}
-                          </td>
-                        ))}
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-
-            {/* Feedback Section */}
-            <div className="feedback-section">
-              <div className="section-title">💬 Feedback</div>
-              {!feedback.type ? (
-                <div className="feedback-buttons">
-                  <button
-                    className="btn-helpful"
-                    onClick={() => handleFeedbackSubmit("helpful")}
-                    disabled={feedback.submitting}
-                  >
-                    {feedback.submitting ? "Submitting..." : "Helpful"}
-                  </button>
-                  <button
-                    className="btn-not-helpful"
-                    onClick={() => handleFeedbackSubmit("not_helpful")}
-                    disabled={feedback.submitting}
-                  >
-                    {feedback.submitting ? "Submitting..." : "Not Helpful"}
-                  </button>
-                </div>
-              ) : (
-                <div className="feedback-thank-you">
-                  <span className="checkmark">✓</span>
-                  Thank you for your feedback!
-                </div>
-              )}
-              {!feedback.type && (
-                <div className="feedback-comment">
-                  <textarea
-                    placeholder="Add optional comment..."
-                    value={feedback.comment}
-                    onChange={(e) =>
-                      setFeedback((prev) => ({
-                        ...prev,
-                        comment: e.target.value,
-                      }))
-                    }
-                    disabled={feedback.submitting}
-                  />
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* Query History */}
-        {queryHistory.length > 0 && (
-          <div className="history-section">
-            <div className="section-title">
-              📜 Query History ({queryHistory.length})
-            </div>
-            <div className="history-list">
-              {queryHistory.map((log) => (
-                <div key={log.id} className="history-item">
-                  <div className="history-question">{log.question}</div>
-                  <div className="history-meta">
-                    <span className={`status status-${log.status}`}>
-                      {log.status === "success" ? "✓" : "✗"}
-                      {log.status}
-                    </span>
-                    <span className="response-time">
-                      {log.responseTimeMs}ms
-                    </span>
-                    <span className="row-count">{log.rowCount} rows</span>
-                    <span className="timestamp">
-                      {new Date(log.timestamp).toLocaleString()}
-                    </span>
+                <div className="stat-card">
+                  <div className="stat-value">
+                    {analytics.successfulQueries}
                   </div>
-                  {log.errorMessage && (
-                    <div className="history-error">
-                      Error: {log.errorMessage}
-                    </div>
-                  )}
+                  <div className="stat-label">Successful Queries</div>
                 </div>
-              ))}
+                <div className="stat-card">
+                  <div className="stat-value">{analytics.failedQueries}</div>
+                  <div className="stat-label">Failed Queries</div>
+                </div>
+                <div className="stat-card">
+                  <div className="stat-value">
+                    {analytics.averageResponseTimeMs}ms
+                  </div>
+                  <div className="stat-label">Avg Response Time</div>
+                </div>
+                <div className="stat-card">
+                  <div className="stat-value">
+                    {analytics.helpfulFeedbackCount}
+                  </div>
+                  <div className="stat-label">Helpful Feedback</div>
+                </div>
+                <div className="stat-card">
+                  <div className="stat-value">
+                    {analytics.notHelpfulFeedbackCount}
+                  </div>
+                  <div className="stat-label">Not Helpful Feedback</div>
+                </div>
+              </div>
             </div>
-          </div>
-        )}
+          )}
+
+          {/* Query Input */}
+          <QueryInput
+            question={question}
+            setQuestion={setQuestion}
+            loading={loading}
+            error={error}
+            onSubmit={handleSubmit}
+            onSuggestion={onSuggestion}
+          />
+
+          {/* Results Table */}
+          <ResultsTable result={result} />
+
+          {/* Feedback */}
+          {result && (
+            <Feedback
+              feedback={feedback}
+              setFeedback={setFeedback}
+              onSubmit={handleFeedbackSubmit}
+            />
+          )}
+
+          {/* Query History */}
+          <QueryHistory history={queryHistory} />
+        </div>
       </main>
 
       {/* ── Footer ────────────────────────────── */}

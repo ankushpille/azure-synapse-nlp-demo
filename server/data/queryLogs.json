@@ -8,5 +8,15 @@
     "rowCount": 1,
     "errorMessage": null,
     "timestamp": "2026-03-06T07:45:12.691Z"
+  },
+  {
+    "id": "mmep55mzjoywnji2mqp",
+    "question": "What are the total sales?",
+    "generatedSql": "SELECT SUM(amount) AS total_sales FROM dbo.sales_ext;",
+    "status": "success",
+    "responseTimeMs": 13730,
+    "rowCount": 1,
+    "errorMessage": null,
+    "timestamp": "2026-03-06T09:32:58.955Z"
   }
 ]
