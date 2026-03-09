@@ -1,9 +1,11 @@
 /**
  * Azure Table Storage Utility
  * Creates and manages TableClient instances for Azure Table Storage
+ * Uses centralized configuration management
  */
 
 const { TableClient, AzureNamedKeyCredential } = require("@azure/data-tables");
+const { config } = require("../config");
 const logger = require("./logger");
 
 /**
@@ -11,8 +13,8 @@ const logger = require("./logger");
  * @returns {TableClient} QueryLogs TableClient instance
  */
 function getQueryLogsTableClient() {
-  const connectionString = process.env.AZURE_TABLES_CONNECTION_STRING;
-  const tableName = process.env.QUERY_LOGS_TABLE_NAME || "QueryLogs";
+  const connectionString = config.tableStorage.connectionString;
+  const tableName = config.tableStorage.queryLogsTableName;
 
   try {
     const tableClient = TableClient.fromConnectionString(
@@ -32,8 +34,8 @@ function getQueryLogsTableClient() {
  * @returns {TableClient} FeedbackLogs TableClient instance
  */
 function getFeedbackLogsTableClient() {
-  const connectionString = process.env.AZURE_TABLES_CONNECTION_STRING;
-  const tableName = process.env.FEEDBACK_LOGS_TABLE_NAME || "FeedbackLogs";
+  const connectionString = config.tableStorage.connectionString;
+  const tableName = config.tableStorage.feedbackLogsTableName;
 
   try {
     const tableClient = TableClient.fromConnectionString(

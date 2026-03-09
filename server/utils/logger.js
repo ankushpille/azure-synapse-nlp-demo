@@ -1,18 +1,92 @@
 /**
  * Centralized Logger
  * Handles logging operations with support for telemetry and Application Insights
+ * Standardizes logging levels and formats across the application
  */
 
+const { config } = require("../config");
 const { telemetryClient } = require("../config/appInsights");
 
 /**
- * Log levels
+ * Log levels with severity mapping
  */
 const LOG_LEVELS = {
-  INFO: "INFO",
-  WARN: "WARN",
-  ERROR: "ERROR",
-  DEBUG: "DEBUG",
+  INFO: { value: 0, name: "INFO", severity: "Information" },
+  WARN: { value: 1, name: "WARN", severity: "Warning" },
+  ERROR: { value: 2, name: "ERROR", severity: "Error" },
+  DEBUG: { value: 3, name: "DEBUG", severity: "Verbose" },
+};
+
+/**
+ * Get current log level from configuration
+ */
+const getCurrentLogLevel = () => {
+  const configLevel = (config.logging.level || "info").toUpperCase();
+  return LOG_LEVELS[configLevel] || LOG_LEVELS.INFO;
+};
+
+/**
+ * Check if a log level is enabled
+ */
+const isLevelEnabled = (level) => {
+  return level.value <= getCurrentLogLevel().value;
+};
+
+/**
+ * Format log message with timestamp and level
+ */
+const formatLogMessage = (level, message) => {
+  const timestamp = new Date().toISOString();
+  return `[${timestamp}] [${level.name}] ${message}`;
+};
+
+/**
+ * Logs a message at the specified level
+ */
+const logMessage = (level, message, data = null, error = null) => {
+  // Check if level is enabled
+  if (!isLevelEnabled(level)) {
+    return;
+  }
+
+  // Console logging
+  if (config.logging.enableConsoleLogging) {
+    const formattedMessage = formatLogMessage(level, message);
+
+    if (level.name === "ERROR") {
+      console.error(formattedMessage);
+    } else if (level.name === "WARN") {
+      console.warn(formattedMessage);
+    } else if (level.name === "DEBUG") {
+      console.debug(formattedMessage);
+    } else {
+      console.log(formattedMessage);
+    }
+
+    if (data) {
+      console.log("  Data:", JSON.stringify(data));
+    }
+
+    if (error) {
+      console.error("  Error:", error);
+    }
+  }
+
+  // Application Insights telemetry
+  if (config.logging.enableAppInsights && telemetryClient) {
+    if (level.name === "ERROR") {
+      telemetryClient.trackException({
+        exception: error || new Error(message),
+        properties: data,
+      });
+    } else {
+      telemetryClient.trackTrace({
+        message,
+        severity: level.severity,
+        properties: data,
+      });
+    }
+  }
 };
 
 /**
@@ -21,13 +95,7 @@ const LOG_LEVELS = {
  * @param {Object} data - Optional additional data
  */
 function info(message, data = null) {
-  console.log(`[${new Date().toISOString()}] [${LOG_LEVELS.INFO}] ${message}`);
-  if (data) console.log("  Data:", JSON.stringify(data));
-
-  telemetryClient?.trackTrace({
-    message,
-    severity: LOG_LEVELS.INFO,
-  });
+  logMessage(LOG_LEVELS.INFO, message, data);
 }
 
 /**
@@ -36,13 +104,7 @@ function info(message, data = null) {
  * @param {Object} data - Optional additional data
  */
 function warning(message, data = null) {
-  console.warn(`[${new Date().toISOString()}] [${LOG_LEVELS.WARN}] ${message}`);
-  if (data) console.warn("  Data:", JSON.stringify(data));
-
-  telemetryClient?.trackTrace({
-    message,
-    severity: LOG_LEVELS.WARN,
-  });
+  logMessage(LOG_LEVELS.WARN, message, data);
 }
 
 /**
@@ -51,12 +113,7 @@ function warning(message, data = null) {
  * @param {Error} err - Optional error object
  */
 function error(message, err = null) {
-  console.error(
-    `[${new Date().toISOString()}] [${LOG_LEVELS.ERROR}] ${message}`,
-  );
-  if (err) console.error("  Error:", err);
-
-  telemetryClient?.trackException({ exception: err || new Error(message) });
+  logMessage(LOG_LEVELS.ERROR, message, null, err);
 }
 
 /**
@@ -65,17 +122,7 @@ function error(message, err = null) {
  * @param {Object} data - Optional additional data
  */
 function debug(message, data = null) {
-  if (process.env.NODE_ENV === "development") {
-    console.debug(
-      `[${new Date().toISOString()}] [${LOG_LEVELS.DEBUG}] ${message}`,
-    );
-    if (data) console.debug("  Data:", JSON.stringify(data));
-  }
-
-  telemetryClient?.trackTrace({
-    message,
-    severity: LOG_LEVELS.DEBUG,
-  });
+  logMessage(LOG_LEVELS.DEBUG, message, data);
 }
 
 /**
@@ -123,7 +170,7 @@ function logError(context, err) {
  * @param {Object} properties - Optional event properties
  */
 function trackEvent(eventName, properties = null) {
-  if (telemetryClient) {
+  if (config.logging.enableAppInsights && telemetryClient) {
     telemetryClient.trackEvent({
       name: eventName,
       properties,

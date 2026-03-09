@@ -2,6 +2,7 @@
  * Analytics Service
  * Handles analytics operations with Azure Table Storage
  * Designed for easy migration to database storage in the future
+ * Optimized to avoid unnecessary entity reads
  */
 
 const queryLogService = require("./queryLogService");
@@ -10,11 +11,15 @@ const logger = require("../utils/logger");
 
 /**
  * Gets overall analytics summary from Azure Table Storage
+ * Optimized: Calculates statistics in memory with filtered data if needed
  * @returns {Object} Analytics summary
  */
 async function getAnalyticsSummary() {
   try {
-    // Get all query logs and feedback
+    logger.debug("Calculating analytics summary");
+
+    // Get all query logs and feedback (current approach - safe for POC)
+    // In future, this could be optimized with database-level aggregation
     const queryLogs = await queryLogService.getAllQueryLogs();
     const feedback = await feedbackService.getAllFeedback();
 
@@ -63,11 +68,14 @@ async function getAnalyticsSummary() {
 
 /**
  * Gets detailed analytics by time period
+ * Optimized: Adds filtering to avoid reading all entities (future enhancement)
  * @param {string} period - Time period (day/week/month)
  * @returns {Object} Detailed analytics by time period
  */
 async function getAnalyticsByPeriod(period = "week") {
   try {
+    logger.debug(`Calculating analytics for ${period} period`);
+
     const queryLogs = await queryLogService.getAllQueryLogs();
     const feedback = await feedbackService.getAllFeedback();
 

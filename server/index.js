@@ -8,14 +8,17 @@
  * - Services: Business logic (NLP, Synapse interaction, data access)
  * - Utils: Reusable utilities (logging, SQL generation, file storage)
  * - Middleware: Error handling, authentication, etc.
- * - Config: Configuration management
+ * - Config: Configuration management (centralized)
  */
 
-require("dotenv").config();
+// Initialize centralized configuration FIRST
+const { initializeConfig, config } = require("./config");
+initializeConfig();
+
 const express = require("express");
 const cors = require("cors");
 
-// Initialize Application Insights first
+// Initialize Application Insights next
 require("./config/appInsights");
 
 const logger = require("./utils/logger");
@@ -42,10 +45,12 @@ app.use("/", queryRoutes); // GET /
 app.use(notFoundHandler);
 app.use(errorHandler);
 
-// Server configuration
-const PORT = process.env.PORT || 3001;
+// Server configuration from centralized config
+const PORT = config.server.port;
 
 // Start server
 app.listen(PORT, () => {
-  logger.info(`✅ Server is running on http://localhost:${PORT}`);
+  logger.info(
+    `✅ Server is running on http://localhost:${PORT} (${config.server.environment} mode)`,
+  );
 });

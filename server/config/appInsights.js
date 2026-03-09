@@ -1,21 +1,22 @@
 /**
  * Application Insights Configuration
  * Initializes Azure Application Insights for telemetry, logging, and performance monitoring
+ * Uses centralized configuration management
  */
 
 const appInsights = require("applicationinsights");
+const { config } = require("./");
+const logger = require("../utils/logger");
 
 /**
  * Initialize Application Insights
  * @returns {appInsights.TelemetryClient} Telemetry client instance
  */
 function initializeAppInsights() {
-  const connectionString = process.env.APPINSIGHTS_CONNECTION_STRING;
+  const connectionString = config.appInsights.connectionString;
 
-  if (!connectionString) {
-    console.warn(
-      "Application Insights connection string not found. Telemetry will be disabled.",
-    );
+  if (!connectionString || config.logging.enableAppInsights === false) {
+    logger.warning("Application Insights is disabled");
     return null;
   }
 
@@ -29,13 +30,13 @@ function initializeAppInsights() {
       .setAutoCollectPerformance(true)
       .start();
 
-    console.info("Application Insights initialized successfully");
+    logger.info("Application Insights initialized successfully");
 
     // Get telemetry client for custom events
     const telemetryClient = appInsights.defaultClient;
     return telemetryClient;
   } catch (error) {
-    console.error("Failed to initialize Application Insights", error);
+    logger.error("Failed to initialize Application Insights", error);
     return null;
   }
 }
