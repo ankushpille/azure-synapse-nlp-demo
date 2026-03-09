@@ -1,0 +1,115 @@
+/* Query History Component Styles */
+@import "../../styles/variables.css";
+
+.history-section {
+  background: var(--card-background);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  padding: var(--spacing-xl);
+  margin-bottom: var(--spacing-xl);
+  animation: fadeSlide 0.35s ease;
+}
+
+.history-section .section-title {
+  margin-bottom: var(--spacing-lg);
+}
+
+.history-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.history-item {
+  background: var(--input-background);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: var(--spacing-lg);
+  transition: all var(--transition-normal);
+}
+
+.history-item:hover {
+  border-color: var(--border-focus);
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.1);
+}
+
+.history-question {
+  font-size: 0.95rem;
+  color: var(--text-color);
+  margin-bottom: var(--spacing-sm);
+  line-height: 1.4;
+}
+
+.history-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-md);
+  align-items: center;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 0.7rem;
+}
+
+.status-success {
+  background: rgba(16, 185, 129, 0.1);
+  color: var(--success-color);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.status-failed {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--error-color);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.response-time {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.row-count {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.timestamp {
+  color: var(--text-muted);
+  font-size: 0.75rem;
+}
+
+.history-error {
+  margin-top: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--error-background);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: var(--radius-sm);
+  color: #fca5a5;
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
+.history-error strong {
+  color: var(--error-color);
+}
+
+/* ── Responsive Design ──────────────────────────── */
+@media (max-width: 640px) {
+  .history-meta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-xs);
+  }
+}

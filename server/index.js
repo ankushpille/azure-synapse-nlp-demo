@@ -1,109 +1,56 @@
-// server\index.js
+/**
+ * Azure Synapse NLP Demo Backend
+ * Main server entry point
+ *
+ * Architecture overview:
+ * - Routes: Define API endpoints
+ * - Controllers: Handle request validation and orchestration
+ * - Services: Business logic (NLP, Synapse interaction, data access)
+ * - Utils: Reusable utilities (logging, SQL generation, file storage)
+ * - Middleware: Error handling, authentication, etc.
+ * - Config: Configuration management (centralized)
+ */
 
-require("dotenv").config();
+// Initialize centralized configuration FIRST
+const { initializeConfig, config } = require("./config");
+initializeConfig();
+
 const express = require("express");
 const cors = require("cors");
-const sql = require("mssql");
 
+// Initialize Application Insights next
+require("./config/appInsights");
+
+const logger = require("./utils/logger");
+const queryRoutes = require("./routes/queryRoutes");
+const feedbackRoutes = require("./routes/feedbackRoutes");
+const analyticsRoutes = require("./routes/analyticsRoutes");
+const { errorHandler, notFoundHandler } = require("./middleware/errorHandler");
+
+// Initialize Express app
 const app = express();
+
+// Middleware
 app.use(cors());
 app.use(express.json());
 
-// ───────────────────────────────────────────────
-// Azure Synapse connection config
-// ───────────────────────────────────────────────
-const synapseConfig = {
-  server: process.env.SYNAPSE_SERVER,
-  database: process.env.SYNAPSE_DATABASE,
-  user: process.env.SYNAPSE_USER,
-  password: process.env.SYNAPSE_PASSWORD,
-  options: {
-    encrypt: true,
-    trustServerCertificate: false,
-  },
-};
+// Routes
+app.use("/query", queryRoutes); // POST /query
+app.use("/feedback", feedbackRoutes); // POST /feedback
+app.use("/analytics", analyticsRoutes); // GET /analytics, GET /analytics/query-history
+app.use("/health", queryRoutes); // GET /health
+app.use("/", queryRoutes); // GET /
 
-// ───────────────────────────────────────────────
-// Rule-based NLP → SQL mapping
-// ───────────────────────────────────────────────
-function questionToSql(question) {
-  const q = question.toLowerCase();
+// Error handling middleware (must be registered after routes)
+app.use(notFoundHandler);
+app.use(errorHandler);
 
-  if (q.includes("total") && q.includes("sales")) {
-    return "SELECT SUM(amount) AS total_sales FROM dbo.sales_data;";
-  }
+// Server configuration from centralized config
+const PORT = config.server.port;
 
-  if (q.includes("sales") && q.includes("region")) {
-    return "SELECT region, SUM(amount) AS total_sales FROM dbo.sales_data GROUP BY region ORDER BY total_sales DESC;";
-  }
-
-  if (q.includes("top") && (q.includes("product") || q.includes("sales"))) {
-    return "SELECT TOP 5 product_name, SUM(amount) AS total_sales FROM dbo.sales_data GROUP BY product_name ORDER BY total_sales DESC;";
-  }
-
-  if (q.includes("india")) {
-    return "SELECT * FROM dbo.sales_data WHERE region='India';";
-  }
-
-  // default
-  return "SELECT TOP 10 * FROM dbo.sales_data;";
-}
-
-// ───────────────────────────────────────────────
-// POST /query
-// ───────────────────────────────────────────────
-app.post("/query", async (req, res) => {
-  const { question } = req.body;
-
-  if (!question || typeof question !== "string" || !question.trim()) {
-    return res
-      .status(400)
-      .json({ error: "Please provide a valid 'question' field." });
-  }
-
-  const generatedSql = questionToSql(question);
-
-  let pool;
-  try {
-    pool = await sql.connect(synapseConfig);
-    const result = await pool.request().query(generatedSql);
-
-    res.json({
-      question,
-      generatedSql,
-      rows: result.recordset,
-    });
-  } catch (err) {
-    console.error("Synapse query error:", err.message);
-    res.status(500).json({
-      error: "Failed to execute query against Azure Synapse.",
-      details: err.message,
-    });
-  } finally {
-    if (pool) {
-      try {
-        await pool.close();
-      } catch (_) {
-        /* ignore */
-      }
-    }
-  }
-});
-
-// ───────────────────────────────────────────────
-// Health check
-// ───────────────────────────────────────────────
-app.get("/health", (_req, res) => res.json({ status: "ok" }));
-
-// ───────────────────────────────────────────────
-// Root
-// ───────────────────────────────────────────────
-app.get("/", (_req, res) => res.json({ status: "Server is running" }));
-
-// ───────────────────────────────────────────────
 // Start server
-// ───────────────────────────────────────────────
-const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
-  console.log(`✅  Server is running on http://localhost:${PORT}`);
+  logger.info(
+    `✅ Server is running on http://localhost:${PORT} (${config.server.environment} mode)`,
+  );
 });

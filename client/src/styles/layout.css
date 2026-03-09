@@ -1,0 +1,120 @@
+/* Layout Styles */
+@import "./variables.css";
+
+/* ── Header Section ─────────────────────────────── */
+.hero-header {
+  position: relative;
+  padding: var(--spacing-3xl) var(--spacing-xl) var(--spacing-xl);
+  text-align: center;
+  background: linear-gradient(135deg, #111427 0%, #1a1040 50%, #111427 100%);
+  overflow: hidden;
+}
+
+.hero-header::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse 60% 50% at 50% 0%,
+    var(--accent-glow) 0%,
+    transparent 70%
+  );
+  pointer-events: none;
+}
+
+.hero-header h1 {
+  position: relative;
+  font-weight: 800;
+  font-size: 2rem;
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: -0.02em;
+  margin-bottom: var(--spacing-sm);
+}
+
+.hero-header p {
+  position: relative;
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  margin-bottom: var(--spacing-lg);
+}
+
+.badge-row {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  gap: var(--spacing-sm);
+  flex-wrap: wrap;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: var(--spacing-xs) var(--spacing-md);
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: var(--card-background);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+}
+
+.badge .dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--success-color);
+  animation: pulse-dot 2s infinite;
+}
+
+/* ── Main Content ───────────────────────────────── */
+.main-content {
+  flex: 1;
+  padding: var(--spacing-3xl) 0 var(--spacing-3xl);
+}
+
+/* ── Footer ─────────────────────────────────────── */
+.app-footer {
+  text-align: center;
+  padding: var(--spacing-lg);
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  border-top: 1px solid var(--border-color);
+  margin-top: auto;
+}
+
+/* ── Responsive Design ──────────────────────────── */
+@media (max-width: 768px) {
+  .hero-header {
+    padding: var(--spacing-2xl) var(--spacing-lg) var(--spacing-lg);
+  }
+
+  .hero-header h1 {
+    font-size: 1.75rem;
+  }
+
+  .main-content {
+    padding: var(--spacing-2xl) 0 var(--spacing-2xl);
+  }
+}
+
+@media (max-width: 640px) {
+  .hero-header {
+    padding: var(--spacing-xl) var(--spacing-md) var(--spacing-md);
+  }
+
+  .hero-header h1 {
+    font-size: 1.5rem;
+  }
+
+  .hero-header p {
+    font-size: 0.9rem;
+  }
+
+  .main-content {
+    padding: var(--spacing-xl) 0 var(--spacing-xl);
+  }
+}
