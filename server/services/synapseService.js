@@ -74,13 +74,35 @@ async function getSynapsePool() {
 async function executeQuery(sqlQuery) {
   let pool;
   try {
+    // Temporary debug logging (as requested)
+    console.log("Synapse Server:", process.env.SYNAPSE_SERVER);
+    console.log("Synapse Database:", process.env.SYNAPSE_DATABASE);
+    console.log("Executing SQL:", sqlQuery);
+
+    // Debug: Log connection details
+    logger.debug(`Executing query against Synapse server: ${config.server}`);
+    logger.debug(`Executing query against database: ${config.database}`);
+    logger.debug(`Executing SQL query: ${sqlQuery}`);
+
     pool = await getSynapsePool();
     const result = await pool.request().query(sqlQuery);
     logger.logQueryResult(result.recordset.length);
     return result.recordset;
   } catch (error) {
+    // Temporary debug logging (as requested)
+    console.log("Synapse Server:", process.env.SYNAPSE_SERVER);
+    console.log("Synapse Database:", process.env.SYNAPSE_DATABASE);
+    console.log("Executing SQL:", sqlQuery);
+    console.log("Synapse Error:", error);
+
+    // Debug: Log detailed error information
+    logger.debug(`Synapse server used: ${config.server}`);
+    logger.debug(`Database used: ${config.database}`);
+    logger.debug(`SQL query executed: ${sqlQuery}`);
     logger.logError("Query execution", error);
-    throw new Error("Failed to execute query against Azure Synapse");
+    throw new Error(
+      `Failed to execute query against Azure Synapse: ${error.message}`,
+    );
   } finally {
     if (pool) {
       try {
