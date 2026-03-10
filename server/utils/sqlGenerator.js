@@ -7,13 +7,13 @@
  * SQL queries for sales data analysis
  */
 const SQL_QUERIES = {
-  TOTAL_SALES: "SELECT SUM(amount) AS total_sales FROM dbo.sales_ext;",
+  TOTAL_SALES: "SELECT SUM(amount) AS total_sales FROM dbo.Sales;",
   SALES_BY_REGION:
-    "SELECT region, SUM(amount) AS total_sales FROM dbo.sales_ext GROUP BY region ORDER BY total_sales DESC;",
+    "SELECT region, SUM(amount) AS total_sales FROM dbo.Sales GROUP BY region ORDER BY total_sales DESC;",
   TOP_5_PRODUCT_SALES:
-    "SELECT TOP 5 product_name, SUM(amount) AS total_sales FROM dbo.sales_ext GROUP BY product_name ORDER BY total_sales DESC;",
-  INDIA_SALES: "SELECT * FROM dbo.sales_ext WHERE region='India';",
-  DEFAULT_QUERY: "SELECT TOP 10 * FROM dbo.sales_ext;",
+    "SELECT TOP 5 product_name, SUM(amount) AS total_sales FROM dbo.Sales GROUP BY product_name ORDER BY total_sales DESC;",
+  INDIA_SALES: "SELECT * FROM dbo.Sales WHERE region='India';",
+  DEFAULT_QUERY: "SELECT TOP 10 * FROM dbo.Sales;",
 };
 
 /**
